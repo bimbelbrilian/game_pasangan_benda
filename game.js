@@ -13,11 +13,13 @@ document.addEventListener('DOMContentLoaded', function() {
         player2: []
     };
     let currentTheme = 'buah';
-    const WINNING_SCORE_LIMIT = 30; 
-    const TILES_PER_PLAYER = 30; 
+    let currentMode = 'multiplayer'; // 'multiplayer' atau 'singleplayer'
+    const SINGLE_PLAYER_TILES = 50; // 25 pasangan
+    const MULTI_PLAYER_TILES = 30; // 15 pasangan
     let isAnimating = false; 
     let bgmEnabled = true; 
     let sfxEnabled = true;
+    let selectedTheme = 'buah';
 
     // Data untuk setiap tema
     const themeData = {
@@ -208,28 +210,40 @@ document.addEventListener('DOMContentLoaded', function() {
     const sfxToggle = document.getElementById('sfx-toggle');
 
     // ==============================================
-    // === 2. FUNGSI GENERATOR DAN LOGIKA TILE ===
+    // === 2. FUNGSI UTILITAS ===
     // ==============================================
 
     /**
-     * Menghasilkan array item yang sudah di-shuffle untuk satu set 30 ubin (15 pasang).
+     * Mengacak array menggunakan Fisher-Yates algorithm
      */
-    function generateBalancedTileSet(theme) {
+    function shuffleArray(array) {
+        const newArray = [...array];
+        for (let i = newArray.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [newArray[i], newArray[j]] = [newArray[j], newArray[i]];
+        }
+        return newArray;
+    }
+
+    /**
+     * Menghasilkan array item yang sudah di-shuffle untuk satu set tile.
+     */
+    function generateBalancedTileSet(theme, mode) {
         const items = themeData[theme];
         if (!items || items.length === 0) {
             console.error('Tema tidak ditemukan:', theme);
             return [];
         }
 
-        const requiredPairs = 15;
+        const requiredPairs = mode === 'singleplayer' ? 25 : 15;
         const allPairs = [];
         
-        // Duplikasi setiap item untuk membuat pasangan
+        // Duplikat setiap item untuk membuat pasangan
         items.forEach(item => {
             allPairs.push(item, item);
         });
 
-        // Jika jumlah item kurang dari 15, tambahkan item secara berulang
+        // Jika masih kurang, tambahkan item secara berulang
         while (allPairs.length < requiredPairs * 2) {
             items.forEach(item => {
                 if (allPairs.length < requiredPairs * 2) {
@@ -238,83 +252,136 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         }
 
-        // Potong ke 30 item jika lebih
         const finalItems = allPairs.slice(0, requiredPairs * 2);
+        return shuffleArray(finalItems);
+    }
+
+    // ==============================================
+    // === 3. FUNGSI SINGLE PLAYER HEADER ===
+    // ==============================================
+
+    /**
+     * Membuat header untuk single player
+     */
+    function createSinglePlayerHeader() {
+        // Hapus header lama jika ada
+        removeSinglePlayerHeader();
         
-        // Acak array
-        if (typeof shuffleArray === 'function') {
-            return shuffleArray(finalItems);
-        } else {
-            return finalItems;
+        const player1Area = document.querySelector('.player-panel.player1');
+        if (!player1Area) return;
+        
+        // Buat header baru
+        const header = document.createElement('div');
+        header.className = 'player-header';
+        header.innerHTML = `
+            <div class="player-title">Pemain 1</div>
+            <div class="player-stats">
+                <div class="player-timer">
+                    <i class="fas fa-clock"></i>
+                    <span id="single-timer">10:00</span>
+                </div>
+                <div class="player-score">
+                    <i class="fas fa-star"></i>
+                    <span id="single-score">0</span>
+                </div>
+            </div>
+        `;
+        
+        // Sisipkan header sebelum grid
+        player1Area.insertBefore(header, player1Grid);
+        
+        // Update display segera setelah dibuat
+        updateSinglePlayerDisplay();
+    }
+
+    /**
+     * Menghapus header single player
+     */
+    function removeSinglePlayerHeader() {
+        const existingHeader = document.querySelector('.player-header');
+        if (existingHeader) {
+            existingHeader.remove();
         }
     }
 
     /**
- * Membuat 30 ubin (kartu) untuk grid pemain tertentu dari array item yang sudah balance.
- */
-function createTiles(player, items) {
-    const grid = player === 'player1' ? player1Grid : player2Grid;
-    grid.innerHTML = '';
-    
-    items.forEach((item, index) => {
-        const colorIndex = (index % 20) + 1;
-
-        const tile = document.createElement('div');
-        tile.className = `tile card-variant-${colorIndex}`;
-        tile.dataset.id = item.id;
-        tile.dataset.value = item.name;
-
-        tile.innerHTML = ''; // Clear existing content
-
-        if (item.icon) {
-            tile.classList.add('with-icon');
-            const iconDiv = document.createElement('div');
-            iconDiv.className = 'tile-icon';
-            iconDiv.textContent = item.icon;
-            iconDiv.style.fontSize = '1.8rem';
-            // Atur shadow putih untuk ikon
-            iconDiv.style.textShadow = '1px 1px 0 #FFFFFF, -1px -1px 0 #FFFFFF, 1px -1px 0 #FFFFFF, -1px 1px 0 #FFFFFF, 0 0 4px #FFFFFF';
-            
-            const labelDiv = document.createElement('div');
-            labelDiv.className = 'tile-label';
-            labelDiv.textContent = item.name;
-            // Atur warna hitam dan shadow putih untuk label
-            labelDiv.style.color = '#000000';
-            labelDiv.style.textShadow = '1px 1px 0 #FFFFFF, -1px -1px 0 #FFFFFF, 1px -1px 0 #FFFFFF, -1px 1px 0 #FFFFFF, 0 0 4px #FFFFFF';
-            labelDiv.style.fontWeight = 'bold';
-            
-            tile.appendChild(iconDiv);
-            tile.appendChild(labelDiv);
-            
-            // Untuk tema warna, atur background color
-            if (currentTheme === 'warna' && item.color) {
-                tile.style.background = item.color;
-                // Tetap gunakan teks hitam dengan shadow putih
-            }
-        } else if (item.text) {
-            tile.classList.add('with-text');
-            tile.textContent = item.text;
-            // Atur warna hitam dan shadow putih untuk teks
-            tile.style.color = '#000000';
-            tile.style.textShadow = '1px 1px 0 #FFFFFF, -1px -1px 0 #FFFFFF, 1px -1px 0 #FFFFFF, -1px 1px 0 #FFFFFF, 0 0 4px #FFFFFF';
-            tile.style.fontWeight = 'bold';
+     * Update display untuk single player
+     */
+    function updateSinglePlayerDisplay() {
+        if (currentMode !== 'singleplayer') return;
+        
+        const singleTimer = document.getElementById('single-timer');
+        const singleScore = document.getElementById('single-score');
+        
+        if (singleTimer) {
+            const minutes = Math.floor(timeLeft / 60);
+            const seconds = timeLeft % 60;
+            singleTimer.textContent = `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
         }
+        
+        if (singleScore) {
+            singleScore.textContent = player1Score;
+        }
+    }
 
-        // Tambahkan listener klik
-        tile.addEventListener('click', () => handleTileClick(player, tile));
-        grid.appendChild(tile);
-    });
-}
+    // ==============================================
+    // === 4. FUNGSI GENERATOR DAN LOGIKA TILE ===
+    // ==============================================
 
     /**
-     * Fungsi helper untuk menentukan warna teks kontras
+     * Membuat tile (kartu) untuk grid pemain tertentu dari array item yang sudah balance.
      */
-    function getContrastColor(hexColor) {
-        const r = parseInt(hexColor.substr(1, 2), 16);
-        const g = parseInt(hexColor.substr(3, 2), 16);
-        const b = parseInt(hexColor.substr(5, 2), 16);
-        const brightness = (r * 299 + g * 587 + b * 114) / 1000;
-        return brightness > 128 ? '#000000' : '#FFFFFF';
+    function createTiles(player, items) {
+        const grid = player === 'player1' ? player1Grid : player2Grid;
+        if (!grid) return;
+        
+        grid.innerHTML = '';
+        
+        const textStyle = {
+            color: '#000000',
+            textShadow: '1px 1px 0 #FFFFFF, -1px -1px 0 #FFFFFF, 1px -1px 0 #FFFFFF, -1px 1px 0 #FFFFFF, 0 0 4px #FFFFFF',
+            fontWeight: 'bold'
+        };
+        
+        items.forEach((item, index) => {
+            const colorIndex = (index % 20) + 1;
+
+            const tile = document.createElement('div');
+            tile.className = `tile card-variant-${colorIndex}`;
+            tile.dataset.id = item.id;
+            tile.dataset.value = item.name;
+
+            if (item.icon) {
+                tile.classList.add('with-icon');
+                
+                const iconDiv = document.createElement('div');
+                iconDiv.className = 'tile-icon';
+                iconDiv.textContent = item.icon;
+                iconDiv.style.fontSize = currentMode === 'singleplayer' ? '1.5rem' : '1.8rem';
+                Object.assign(iconDiv.style, textStyle);
+                
+                const labelDiv = document.createElement('div');
+                labelDiv.className = 'tile-label';
+                labelDiv.textContent = item.name;
+                Object.assign(labelDiv.style, textStyle);
+                labelDiv.style.fontSize = currentMode === 'singleplayer' ? '0.6rem' : '0.7rem';
+                
+                tile.appendChild(iconDiv);
+                tile.appendChild(labelDiv);
+                
+                if (currentTheme === 'warna' && item.color) {
+                    tile.style.background = item.color;
+                }
+            } else if (item.text) {
+                tile.classList.add('with-text');
+                tile.textContent = item.text;
+                Object.assign(tile.style, textStyle);
+                tile.style.fontSize = currentMode === 'singleplayer' ? '1.2rem' : '1.5rem';
+            }
+
+            tile.addEventListener('click', () => handleTileClick(player, tile));
+            grid.appendChild(tile);
+        });
     }
 
     /**
@@ -325,19 +392,16 @@ function createTiles(player, items) {
 
         if (typeof playSelectSound === 'function') playSelectSound();
 
-        // Toggle selected state
         if (tile.classList.contains('selected')) {
             tile.classList.remove('selected');
             selectedTiles[player] = selectedTiles[player].filter(t => t !== tile);
         } else {
-            // Memastikan pemain hanya dapat memilih maksimal 2 ubin miliknya sendiri
             if (selectedTiles[player].length < 2) {
                 tile.classList.add('selected');
                 selectedTiles[player].push(tile);
             }
         }
 
-        // Cek pasangan jika sudah ada 2 ubin terpilih
         if (selectedTiles[player].length === 2) {
             checkMatch(player);
         }
@@ -353,26 +417,37 @@ function createTiles(player, items) {
         const id2 = tile2.dataset.id;
 
         if (id1 === id2) {
-            // Match
             if (typeof playMatchSound === 'function') playMatchSound(); 
             
             tile1.classList.add('matched');
             tile2.classList.add('matched');
             
-            // Perbarui Skor
             if (player === 'player1') {
                 player1Score++;
-                player1ScoreElement.textContent = player1Score;
-                player1ScoreElement.classList.add('score-update');
-                setTimeout(() => player1ScoreElement.classList.remove('score-update'), 500);
+                if (player1ScoreElement) {
+                    player1ScoreElement.textContent = player1Score;
+                    player1ScoreElement.classList.add('score-update');
+                    setTimeout(() => player1ScoreElement.classList.remove('score-update'), 500);
+                }
+                
+                // Update score di header single player
+                if (currentMode === 'singleplayer') {
+                    updateSinglePlayerDisplay();
+                    const singleScore = document.getElementById('single-score');
+                    if (singleScore) {
+                        singleScore.classList.add('score-update');
+                        setTimeout(() => singleScore.classList.remove('score-update'), 500);
+                    }
+                }
             } else {
                 player2Score++;
-                player2ScoreElement.textContent = player2Score;
-                player2ScoreElement.classList.add('score-update');
-                setTimeout(() => player2ScoreElement.classList.remove('score-update'), 500);
+                if (player2ScoreElement) {
+                    player2ScoreElement.textContent = player2Score;
+                    player2ScoreElement.classList.add('score-update');
+                    setTimeout(() => player2ScoreElement.classList.remove('score-update'), 500);
+                }
             }
             
-            // Sembunyikan ubin tanpa menghapus dari DOM
             setTimeout(() => {
                 tile1.classList.add('is-hidden');
                 tile2.classList.add('is-hidden');
@@ -385,7 +460,6 @@ function createTiles(player, items) {
             }, 500);
 
         } else {
-            // Wrong Match
             if (typeof playWrongSound === 'function') playWrongSound(); 
             
             tile1.classList.add('wrong');
@@ -401,7 +475,7 @@ function createTiles(player, items) {
     }
 
     // ==============================================
-    // === 3. FUNGSI UTAMA GAMEFLOW & TIMER ===
+    // === 5. FUNGSI UTAMA GAMEFLOW & TIMER ===
     // ==============================================
 
     /**
@@ -419,27 +493,36 @@ function createTiles(player, items) {
     }
 
     /**
-     * Memulai permainan dengan tema tertentu.
+     * Memulai permainan dengan tema dan mode tertentu
      */
-    function startGame(theme) {
-        console.log('startGame() called with theme:', theme);
+    function startGameWithMode(theme, mode) {
+        console.log('Starting game with theme:', theme, 'mode:', mode);
+        
+        currentTheme = theme;
+        currentMode = mode;
         
         clearInterval(timerInterval);
         
         // Reset variables
-        currentTheme = theme;
         player1Score = 0;
         player2Score = 0;
-        timeLeft = 300;
+        timeLeft = currentMode === 'singleplayer' ? 600 : 300;
         gameActive = true;
         isAnimating = false;
         
-        // Reset UI elements
-        mainMenu.classList.add('hidden');
-        if (document.querySelector('.container')) {
-            document.querySelector('.container').style.display = 'flex';
+        // Update UI berdasarkan mode
+        const container = document.querySelector('.container');
+        if (container) {
+            if (currentMode === 'singleplayer') {
+                container.classList.add('single-player');
+            } else {
+                container.classList.remove('single-player');
+            }
         }
         
+        // Reset UI elements
+        if (mainMenu) mainMenu.classList.add('hidden');
+        if (container) container.style.display = 'flex';
         if (winnerPopup) {
             winnerPopup.classList.remove('active');
             winnerPopup.style.display = 'none';
@@ -454,17 +537,28 @@ function createTiles(player, items) {
         if (player1Grid) player1Grid.innerHTML = '';
         if (player2Grid) player2Grid.innerHTML = '';
         
-        // Generate new tiles
-        const p1Items = generateBalancedTileSet(currentTheme);
-        const p2Items = generateBalancedTileSet(currentTheme);
-        
-        createTiles('player1', p1Items);
-        createTiles('player2', p2Items);
+        // Generate new tiles berdasarkan mode
+        if (currentMode === 'singleplayer') {
+            const allItems = generateBalancedTileSet(currentTheme, 'singleplayer');
+            createTiles('player1', allItems);
+            if (player2Grid) player2Grid.innerHTML = '';
+            
+            // Buat header untuk single player
+            createSinglePlayerHeader();
+        } else {
+            const p1Items = generateBalancedTileSet(currentTheme, 'multiplayer');
+            const p2Items = generateBalancedTileSet(currentTheme, 'multiplayer');
+            createTiles('player1', p1Items);
+            createTiles('player2', p2Items);
+            
+            // Hapus header single player jika ada
+            removeSinglePlayerHeader();
+        }
 
         // Start timer
         startTimer();
         
-        console.log('Game started successfully with theme:', theme);
+        console.log('Game started successfully with theme:', theme, 'mode:', mode);
     }
 
     /**
@@ -481,33 +575,44 @@ function createTiles(player, items) {
         }
         
         setTimeout(() => {
-            startGame(currentTheme);
+            startGameWithMode(currentTheme, currentMode);
         }, 100);
     }
     
     /**
-     * Memulai Timer 5 menit (300 detik).
+     * Memulai Timer
      */
     function startTimer() {
         clearInterval(timerInterval);
         
-        const updateTimerDisplay = () => {
+        const updateAllTimerDisplays = () => {
             const minutes = Math.floor(timeLeft / 60);
             const seconds = timeLeft % 60;
+            const timeString = `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
+            
+            // Update timer di center panel (multiplayer)
             if (timerElement) {
-                timerElement.textContent = `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
+                timerElement.textContent = timeString;
+            }
+            
+            // Update timer di header (singleplayer)
+            if (currentMode === 'singleplayer') {
+                const singleTimer = document.getElementById('single-timer');
+                if (singleTimer) {
+                    singleTimer.textContent = timeString;
+                }
             }
         };
 
-        updateTimerDisplay();
+        updateAllTimerDisplays();
         timerInterval = setInterval(() => {
             timeLeft--;
-            updateTimerDisplay();
+            updateAllTimerDisplays();
             
             if (timeLeft <= 0) {
                 clearInterval(timerInterval);
                 gameActive = false;
-                showWinner('Waktu Habis!');
+                checkGameEnd();
             }
         }, 1000);
     }
@@ -516,28 +621,47 @@ function createTiles(player, items) {
      * Memeriksa apakah permainan sudah berakhir.
      */
     function checkGameEnd() {
-        const PLAYER_WIN_SCORE = TILES_PER_PLAYER / 2; // 30 / 2 = 15
-        const totalScore = player1Score + player2Score;
+        const totalTiles = currentMode === 'singleplayer' ? SINGLE_PLAYER_TILES : MULTI_PLAYER_TILES;
+        const WIN_SCORE = totalTiles / 2;
 
-        if (player1Score >= PLAYER_WIN_SCORE) {
-            clearInterval(timerInterval);
-            gameActive = false;
-            showWinner('Pemain 1 Menang!');
-            return;
+        if (currentMode === 'singleplayer') {
+            if (player1Score >= WIN_SCORE) {
+                clearInterval(timerInterval);
+                gameActive = false;
+                showWinner('Selamat! Anda Menang!');
+                return;
+            }
+        } else {
+            if (player1Score >= WIN_SCORE) {
+                clearInterval(timerInterval);
+                gameActive = false;
+                showWinner('Pemain 1 Menang!');
+                return;
+            }
+
+            if (player2Score >= WIN_SCORE) {
+                clearInterval(timerInterval);
+                gameActive = false;
+                showWinner('Pemain 2 Menang!');
+                return;
+            }
         }
 
-        if (player2Score >= PLAYER_WIN_SCORE) {
+        if (timeLeft <= 0) {
             clearInterval(timerInterval);
             gameActive = false;
-            showWinner('Pemain 2 Menang!');
+            if (currentMode === 'singleplayer') {
+                showWinner('Waktu Habis!');
+            } else {
+                if (player1Score > player2Score) {
+                    showWinner('Pemain 1 Menang!');
+                } else if (player2Score > player1Score) {
+                    showWinner('Pemain 2 Menang!');
+                } else {
+                    showWinner('Seri!');
+                }
+            }
             return;
-        }
-
-        if (totalScore >= WINNING_SCORE_LIMIT) {
-             clearInterval(timerInterval);
-             gameActive = false;
-             showWinner('Seri!'); 
-             return;
         }
     }
 
@@ -581,25 +705,94 @@ function createTiles(player, items) {
         if (document.querySelector('.container')) {
             document.querySelector('.container').style.display = 'none';
         }
+        
+        // Reset layout single player
+        removeSinglePlayerHeader();
+        const container = document.querySelector('.container');
+        if (container) {
+            container.classList.remove('single-player');
+        }
+        
+        currentMode = 'multiplayer';
     }
 
     // ==============================================
-    // === 4. INISIALISASI DAN EVENT LISTENERS ===
+    // === 6. FUNGSI MODAL & INISIALISASI ===
     // ==============================================
+
+    /**
+     * Menampilkan modal pemilihan mode
+     */
+    function showModeSelectionModal() {
+        const modeModal = document.getElementById('mode-selection-modal');
+        const selectedThemeName = document.getElementById('selected-theme-name');
+        
+        if (selectedThemeName) {
+            selectedThemeName.textContent = themeNames[selectedTheme] || selectedTheme;
+        }
+        
+        if (modeModal) {
+            modeModal.style.display = 'flex';
+            void modeModal.offsetWidth;
+            modeModal.classList.add('active');
+        }
+    }
+
+    /**
+     * Menyembunyikan modal pemilihan mode
+     */
+    function hideModeSelectionModal() {
+        const modeModal = document.getElementById('mode-selection-modal');
+        
+        if (modeModal) {
+            modeModal.classList.remove('active');
+            setTimeout(() => {
+                modeModal.style.display = 'none';
+            }, 300);
+        }
+    }
 
     function initGame() {
         console.log('Initializing game...');
         
-        // Event Listeners untuk Tombol Tema di Menu
+        // Event Listeners untuk Tombol Tema di Menu - GUNAKAN MODAL
         themeBtns.forEach(btn => {
             btn.addEventListener('click', () => {
                 console.log('Theme button clicked:', btn.dataset.theme);
                 if (typeof playMenuSound === 'function') playMenuSound(); 
-                const theme = btn.dataset.theme;
-                startGame(theme);
+                
+                // Simpan tema yang dipilih dan tampilkan modal mode
+                selectedTheme = btn.dataset.theme;
+                showModeSelectionModal();
             });
         });
-        
+
+        // Event Listeners untuk Modal Mode Selection
+        const modeModal = document.getElementById('mode-selection-modal');
+        const modeOptionBtns = document.querySelectorAll('.mode-option-btn');
+        const backToThemesBtn = document.getElementById('back-to-themes-btn');
+
+        if (modeOptionBtns) {
+            modeOptionBtns.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const mode = btn.dataset.mode;
+                    console.log('Mode selected:', mode);
+                    if (typeof playMenuSound === 'function') playMenuSound();
+                    
+                    // Tutup modal dan mulai game
+                    hideModeSelectionModal();
+                    startGameWithMode(selectedTheme, mode);
+                });
+            });
+        }
+
+        if (backToThemesBtn) {
+            backToThemesBtn.addEventListener('click', () => {
+                if (typeof playMenuSound === 'function') playMenuSound();
+                hideModeSelectionModal();
+            });
+        }
+
         // Event Listeners untuk Tombol Pop-up Pemenang
         const playAgainBtn = document.getElementById('play-again-btn');
         const backToMenuBtn = document.getElementById('back-to-menu-btn');
@@ -650,27 +843,9 @@ function createTiles(player, items) {
         if (sfxToggle) {
             sfxToggle.addEventListener('click', function() {
                 if (typeof playMenuSound === 'function') playMenuSound();
-                if (typeof sfxEnabled !== 'undefined') {
-                    sfxEnabled = !sfxEnabled;
-                    this.innerHTML = sfxEnabled ? '<i class="fas fa-bell"></i>' : '<i class="fas fa-bell-slash"></i>';
-                }
+                sfxEnabled = !sfxEnabled;
+                this.innerHTML = sfxEnabled ? '<i class="fas fa-bell"></i>' : '<i class="fas fa-bell-slash"></i>';
             });
-        }
-        
-        // Inisialisasi BGM
-        if (typeof bgmSound !== 'undefined') {
-            bgmSound.loop = true;
-            bgmSound.volume = 0.3;
-            if (bgmEnabled) {
-                bgmSound.play().catch(e => console.error("BGM Start Error:", e));
-            }
-        }
-
-        // Mobile orientation handling
-        if (typeof checkOrientation === 'function') {
-            window.addEventListener('resize', checkOrientation);
-            window.addEventListener('orientationchange', checkOrientation);
-            checkOrientation();
         }
         
         // Tampilkan menu utama di awal

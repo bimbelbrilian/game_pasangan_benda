@@ -14,7 +14,7 @@ document.addEventListener('DOMContentLoaded', function() {
     };
     let currentTheme = 'buah';
     let currentMode = 'multiplayer'; // 'multiplayer' atau 'singleplayer'
-    const SINGLE_PLAYER_TILES = 50; // 25 pasangan
+    const SINGLE_PLAYER_TILES = 40; // 20 pasangan
     const MULTI_PLAYER_TILES = 30; // 15 pasangan
     let isAnimating = false; 
     let bgmEnabled = true; 
@@ -226,35 +226,36 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     /**
-     * Menghasilkan array item yang sudah di-shuffle untuk satu set tile.
-     */
-    function generateBalancedTileSet(theme, mode) {
-        const items = themeData[theme];
-        if (!items || items.length === 0) {
-            console.error('Tema tidak ditemukan:', theme);
-            return [];
-        }
-
-        const requiredPairs = mode === 'singleplayer' ? 25 : 15;
-        const allPairs = [];
-        
-        // Duplikat setiap item untuk membuat pasangan
-        items.forEach(item => {
-            allPairs.push(item, item);
-        });
-
-        // Jika masih kurang, tambahkan item secara berulang
-        while (allPairs.length < requiredPairs * 2) {
-            items.forEach(item => {
-                if (allPairs.length < requiredPairs * 2) {
-                    allPairs.push(item, item);
-                }
-            });
-        }
-
-        const finalItems = allPairs.slice(0, requiredPairs * 2);
-        return shuffleArray(finalItems);
+ * Menghasilkan array item yang sudah di-shuffle untuk satu set tile.
+ */
+function generateBalancedTileSet(theme, mode) {
+    const items = themeData[theme];
+    if (!items || items.length === 0) {
+        console.error('Tema tidak ditemukan:', theme);
+        return [];
     }
+
+    // PERBAIKAN: Gunakan konstanta yang sudah diupdate
+    const requiredPairs = mode === 'singleplayer' ? SINGLE_PLAYER_TILES / 2 : MULTI_PLAYER_TILES / 2;
+    const allPairs = [];
+    
+    // Duplikat setiap item untuk membuat pasangan
+    items.forEach(item => {
+        allPairs.push(item, item);
+    });
+
+    // Jika masih kurang, tambahkan item secara berulang
+    while (allPairs.length < requiredPairs * 2) {
+        items.forEach(item => {
+            if (allPairs.length < requiredPairs * 2) {
+                allPairs.push(item, item);
+            }
+        });
+    }
+
+    const finalItems = allPairs.slice(0, requiredPairs * 2);
+    return shuffleArray(finalItems);
+}
 
     // ==============================================
     // === 3. FUNGSI SINGLE PLAYER HEADER ===
@@ -357,14 +358,12 @@ document.addEventListener('DOMContentLoaded', function() {
                 const iconDiv = document.createElement('div');
                 iconDiv.className = 'tile-icon';
                 iconDiv.textContent = item.icon;
-                iconDiv.style.fontSize = currentMode === 'singleplayer' ? '1.5rem' : '1.8rem';
                 Object.assign(iconDiv.style, textStyle);
                 
                 const labelDiv = document.createElement('div');
                 labelDiv.className = 'tile-label';
                 labelDiv.textContent = item.name;
                 Object.assign(labelDiv.style, textStyle);
-                labelDiv.style.fontSize = currentMode === 'singleplayer' ? '0.6rem' : '0.7rem';
                 
                 tile.appendChild(iconDiv);
                 tile.appendChild(labelDiv);

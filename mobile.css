@@ -42,178 +42,138 @@
     }
 }
 
-/* Mobile Landscape */
-@media (max-width: 768px) and (orientation: landscape) {
+/* ==================== */
+/* PORTRAIT MOBILE STYLES */
+/* ==================== */
+@media (max-width: 768px) and (orientation: portrait) {
     body {
-        padding: 5px;
-        justify-content: flex-start;
-        min-height: auto;
+        padding: 10px;
         height: 100vh;
+        overflow: hidden;
     }
-    
+
     .container {
         height: 98vh;
-        gap: 8px;
-        width: 100vw;
-        max-width: none;
-        margin: 0;
-        padding: 5px;
+        margin: 5px;
+        border-radius: 15px;
     }
-    
+
+    /* HEADER PORTRAIT */
     header {
-        padding: 10px 15px;
+        padding: 15px 20px;
         border-radius: 15px;
     }
-    
+
     h1 {
-        font-size: 1.3rem;
-        margin-bottom: 5px;
-    }
-    
-    .game-area {
-        gap: 8px;
-        flex-direction: row;
-    }
-    
-    .player-panel {
-        padding: 10px;
-        border-radius: 15px;
-    }
-    
-    .player-title {
-        font-size: 0.9rem;
-        padding: 6px;
+        font-size: 1.5rem;
         margin-bottom: 8px;
     }
-    
-    .player-grid {
-        gap: 5px;
-        grid-template-columns: repeat(6, 1fr); 
-        grid-template-rows: repeat(5, 1fr);
-        padding: 4px;
-    }
-    
-    .tile {
+
+    .subtitle {
         font-size: 0.9rem;
-        border-radius: 8px;
+        padding: 6px 12px;
+        margin-bottom: 8px;
     }
-    
-    .tile.with-icon {
-        font-size: clamp(1.6rem, 3vw, 2.2rem);
-        gap: 6px;
+
+    /* GAME AREA PORTRAIT */
+    .game-area {
+        flex-direction: column;
+        gap: 12px;
+        flex: 1;
+        min-height: 0;
     }
-    
-    .tile-label {
-        font-size: clamp(0.7rem, 1.4vw, 0.85rem);
-        font-weight: bold;
-    }
-    
-    /* SINGLE PLAYER MOBILE */
-    .container.single-player .tile.with-icon {
-        font-size: clamp(1.8rem, 3.5vw, 2.5rem);
-    }
-    
-    .container.single-player .tile-label {
-        font-size: clamp(0.7rem, 1.5vw, 0.9rem);
-    }
-    
-    .center-panel {
-        width: 140px;
-        padding: 10px;
+
+    /* PLAYER PANEL PORTRAIT */
+    .player-panel {
+        padding: 15px;
         border-radius: 15px;
+        flex: 1;
+        min-height: 0;
     }
-    
-    .timer-container {
-        min-height: 60px;
+
+    .player-title {
+        font-size: 1.1rem;
         padding: 8px;
-        margin: 4px 0;
+        margin-bottom: 12px;
     }
-    
-    .timer {
-        font-size: 1.2rem;
-        padding: 4px 8px;
+
+    .player-grid {
+        gap: 8px;
+        grid-template-columns: repeat(4, 1fr);
+        grid-template-rows: repeat(6, 1fr);
+        padding: 6px;
+        flex: 1;
+        min-height: 0;
     }
-    
-    .score-container {
-        min-height: 60px;
-        padding: 10px;
-        margin: 5px 0;
-    }
-    
-    .score {
-        font-size: 1.5rem;
-    }
-    
-    footer {
-        padding: 8px;
+
+    .tile {
+        font-size: 1rem;
         border-radius: 10px;
     }
-    
-    /* Winner Popup untuk Landscape */
-    .winner-popup.active {
-        display: flex;
-    }
-    
-    .winner-content {
-        max-width: 90vw;
-        max-height: 80vh;
-        padding: 20px;
-        margin: 10px;
-    }
-    
-    .winner-title {
-        font-size: 1.8em;
-        margin-bottom: 8px;
-    }
-    
-    .winner-message {
-        font-size: 2.5em;
-        margin-bottom: 20px;
-    }
-    
-    .winner-scores {
-        flex-direction: column;
-        gap: 15px;
-        margin: 20px auto;
-    }
-    
-    .winner-scores::after {
-        font-size: 1.5em;
-        padding: 3px 8px;
-    }
-    
-    .player-score {
-        min-width: 120px;
-        padding: 15px 20px;
-    }
-    
-    .player-score-value {
-        font-size: 2.5em;
-    }
-    
-    .popup-actions {
-        flex-direction: column;
-        gap: 10px;
-    }
-    
-    .btn {
-        padding: 12px 20px;
-        font-size: 1em;
-        width: 100%;
-    }
-}
 
-/* Mobile Portrait - Only show orientation warning */
-@media (max-width: 768px) and (orientation: portrait) {
-    .container, .main-menu {
-        display: none;
+    .tile.with-icon {
+        font-size: clamp(1.8rem, 4vw, 2.5rem);
+        gap: 8px;
     }
-    
+
+    .tile-label {
+        font-size: clamp(0.8rem, 1.8vw, 1rem);
+        font-weight: bold;
+    }
+
+    /* SINGLE PLAYER PORTRAIT */
+    .container.single-player .tile.with-icon {
+        font-size: clamp(2rem, 4.5vw, 3rem);
+    }
+
+    .container.single-player .tile-label {
+        font-size: clamp(0.8rem, 2vw, 1.1rem);
+    }
+
+    /* CENTER PANEL PORTRAIT */
+    .center-panel {
+        width: 160px;
+        padding: 15px;
+        border-radius: 15px;
+    }
+
+    .timer-container {
+        min-height: 70px;
+        padding: 10px;
+        margin: 6px 0;
+    }
+
+    .timer {
+        font-size: 1.4rem;
+        padding: 6px 10px;
+    }
+
+    .score-container {
+        min-height: 70px;
+        padding: 12px;
+        margin: 8px 0;
+    }
+
+    .score {
+        font-size: 1.8rem;
+    }
+
+    /* FOOTER PORTRAIT */
+    footer {
+        padding: 12px;
+        border-radius: 12px;
+    }
+
+    /* ORIENTATION WARNING */
     .orientation-warning {
-        display: flex;
+        display: flex !important;
     }
     
-    /* Tapi tetap tampilkan winner popup jika active */
+    .container, .main-menu {
+        display: none !important;
+    }
+
+    /* WINNER POPUP PORTRAIT */
     .winner-popup.active {
         display: flex;
         background: rgba(0, 0, 0, 0.95);
@@ -266,112 +226,349 @@
     }
 }
 
-/* Small Mobile Screens Landscape */
-@media (max-width: 480px) and (orientation: landscape) {
+/* ==================== */
+/* LANDSCAPE MOBILE STYLES - OPTIMIZED */
+/* ==================== */
+@media (max-width: 768px) and (orientation: landscape) {
+    /* BODY & CONTAINER OPTIMIZATION */
+    body {
+        padding: 3px !important;
+        justify-content: flex-start;
+        min-height: auto;
+        height: 100vh;
+    }
+    
     .container {
-        height: 99vh;
+        height: 98vh !important;
+        min-height: 98vh !important;
+        max-height: 98vh !important;
+        gap: 4px !important;
+        width: 100vw;
+        max-width: none;
+        margin: 0;
+        padding: 3px !important;
     }
     
+    /* HEADER OPTIMIZATION - MINIMAL */
     header {
-        padding: 8px 12px;
+        padding: 6px 8px !important;
+        min-height: 35px !important;
+        max-height: 45px !important;
+        border-radius: 10px !important;
     }
     
+    h1 {
+        font-size: 1rem !important;
+        margin-bottom: 2px !important;
+        line-height: 1.2 !important;
+    }
+    
+    .subtitle {
+        font-size: 0.65rem !important;
+        padding: 2px 6px !important;
+        margin-bottom: 2px !important;
+        line-height: 1.1 !important;
+    }
+    
+    /* FOOTER OPTIMIZATION - MINIMAL */
+    footer {
+        padding: 4px 6px !important;
+        min-height: 25px !important;
+        max-height: 35px !important;
+        border-radius: 8px !important;
+    }
+    
+    /* GAME AREA - MAXIMIZED SPACE */
+    .game-area {
+        flex: 1 !important;
+        min-height: 0 !important;
+        gap: 6px !important;
+        flex-direction: row;
+        height: calc(100% - 70px) !important;
+    }
+    
+    /* PLAYER PANEL OPTIMIZATION */
     .player-panel {
-        padding: 8px;
+        padding: 6px !important;
+        border-radius: 12px !important;
+        flex: 1 !important;
+        min-height: 0 !important;
+        height: 100% !important;
     }
     
-    .center-panel {
-        padding: 8px;
-        width: 120px;
+    .player-title {
+        font-size: 0.8rem !important;
+        padding: 4px !important;
+        margin-bottom: 6px !important;
     }
     
     .player-grid {
-        gap: 4px;
+        gap: 4px !important;
         grid-template-columns: repeat(6, 1fr); 
         grid-template-rows: repeat(5, 1fr);
-        padding: 3px;
+        padding: 3px !important;
+        flex: 1 !important;
+        min-height: 0 !important;
+    }
+    
+    .tile {
+        font-size: 0.8rem !important;
+        border-radius: 6px !important;
+        min-height: 0 !important;
     }
     
     .tile.with-icon {
-        font-size: clamp(1.4rem, 2.8vw, 2rem);
+        font-size: clamp(1.4rem, 2.5vw, 1.8rem) !important;
+        gap: 4px !important;
     }
     
     .tile-label {
-        font-size: clamp(0.6rem, 1.2vw, 0.75rem);
+        font-size: clamp(0.6rem, 1.1vw, 0.7rem) !important;
+        font-weight: bold;
+    }
+    
+    /* SINGLE PLAYER MOBILE OPTIMIZED */
+    .container.single-player .tile.with-icon {
+        font-size: clamp(1.6rem, 3vw, 2rem) !important;
+    }
+    
+    .container.single-player .tile-label {
+        font-size: clamp(0.6rem, 1.2vw, 0.75rem) !important;
+    }
+    
+    /* CENTER PANEL OPTIMIZATION */
+    .center-panel {
+        width: 120px !important;
+        padding: 8px !important;
+        border-radius: 12px !important;
+    }
+    
+    .timer-container {
+        min-height: 50px !important;
+        padding: 6px !important;
+        margin: 3px 0 !important;
+    }
+    
+    .timer {
+        font-size: 1rem !important;
+        padding: 3px 6px !important;
+    }
+    
+    .score-container {
+        min-height: 50px !important;
+        padding: 8px !important;
+        margin: 4px 0 !important;
+    }
+    
+    .score {
+        font-size: 1.3rem !important;
+    }
+    
+    /* WINNER POPUP LANDSCAPE */
+    .winner-popup.active {
+        display: flex;
     }
     
     .winner-content {
+        max-width: 90vw;
+        max-height: 80vh;
         padding: 15px;
-        max-width: 95vw;
+        margin: 8px;
     }
     
     .winner-title {
-        font-size: 1.5em;
-        margin-bottom: 5px;
+        font-size: 1.6em;
+        margin-bottom: 6px;
     }
     
     .winner-message {
-        font-size: 2em;
+        font-size: 2.2em;
         margin-bottom: 15px;
     }
     
     .winner-scores {
-        gap: 10px;
+        flex-direction: column;
+        gap: 12px;
         margin: 15px auto;
     }
     
     .winner-scores::after {
-        font-size: 1.5em;
-        padding: 3px 8px;
+        font-size: 1.3em;
+        padding: 2px 6px;
     }
     
     .player-score {
         min-width: 100px;
-        padding: 10px 15px;
+        padding: 12px 16px;
     }
     
     .player-score-value {
-        font-size: 2em;
+        font-size: 2.2em;
     }
     
-    .btn {
-        padding: 10px 20px;
-        font-size: 1em;
-    }
-}
-
-/* Very Small Mobile Screens */
-@media (max-width: 360px) and (orientation: landscape) {
-    .winner-content {
-        padding: 12px;
-    }
-    
-    .winner-title {
-        font-size: 1.3em;
-    }
-    
-    .winner-message {
-        font-size: 1.8em;
-    }
-    
-    .winner-scores {
+    .popup-actions {
+        flex-direction: column;
         gap: 8px;
     }
     
-    .player-score {
-        min-width: 90px;
-        padding: 8px 12px;
-    }
-    
-    .player-score-value {
-        font-size: 1.8em;
-    }
-    
     .btn {
-        padding: 8px 16px;
+        padding: 10px 16px;
         font-size: 0.9em;
+        width: 100%;
     }
 }
+
+/* ==================== */
+/* SMALL MOBILE STYLES */
+/* ==================== */
+@media (max-width: 480px) and (orientation: portrait) {
+    .container {
+        height: 99vh;
+        margin: 3px;
+    }
+
+    header {
+        padding: 12px 15px;
+    }
+
+    h1 {
+        font-size: 1.3rem;
+    }
+
+    .subtitle {
+        font-size: 0.8rem;
+    }
+
+    .player-panel {
+        padding: 12px;
+    }
+
+    .player-grid {
+        gap: 6px;
+        grid-template-columns: repeat(3, 1fr);
+        grid-template-rows: repeat(8, 1fr);
+    }
+
+    .center-panel {
+        width: 140px;
+        padding: 12px;
+    }
+}
+
+@media (max-width: 480px) and (orientation: landscape) {
+    .container {
+        height: 99vh !important;
+        gap: 3px !important;
+    }
+    
+    header {
+        padding: 4px 6px !important;
+        min-height: 30px !important;
+    }
+    
+    h1 {
+        font-size: 0.9rem !important;
+    }
+    
+    .subtitle {
+        font-size: 0.6rem !important;
+        padding: 1px 4px !important;
+    }
+    
+    footer {
+        padding: 3px 4px !important;
+        min-height: 20px !important;
+    }
+    
+    .player-panel {
+        padding: 4px !important;
+    }
+    
+    .center-panel {
+        padding: 6px !important;
+        width: 100px !important;
+    }
+    
+    .player-grid {
+        gap: 3px !important;
+        padding: 2px !important;
+    }
+    
+    .tile.with-icon {
+        font-size: clamp(1.2rem, 2vw, 1.6rem) !important;
+    }
+    
+    .tile-label {
+        font-size: clamp(0.5rem, 0.9vw, 0.65rem) !important;
+    }
+    
+    .game-area {
+        height: calc(100% - 60px) !important;
+        gap: 4px !important;
+    }
+}
+
+/* ==================== */
+/* VERY SMALL MOBILE SCREENS */
+/* ==================== */
+@media (max-width: 360px) and (orientation: portrait) {
+    .container {
+        height: 99vh;
+        margin: 2px;
+    }
+
+    header {
+        padding: 10px 12px;
+    }
+
+    h1 {
+        font-size: 1.1rem;
+    }
+
+    .player-grid {
+        gap: 4px;
+        grid-template-columns: repeat(3, 1fr);
+    }
+
+    .tile.with-icon {
+        font-size: clamp(1.6rem, 3.5vw, 2.2rem);
+    }
+}
+
+@media (max-width: 360px) and (orientation: landscape) {
+    .container {
+        height: 99vh !important;
+        gap: 2px !important;
+        padding: 2px !important;
+    }
+    
+    header {
+        padding: 3px 4px !important;
+        min-height: 25px !important;
+    }
+    
+    h1 {
+        font-size: 0.8rem !important;
+    }
+    
+    .game-area {
+        height: calc(100% - 50px) !important;
+        gap: 3px !important;
+    }
+    
+    .player-panel {
+        padding: 3px !important;
+    }
+    
+    .center-panel {
+        width: 90px !important;
+        padding: 4px !important;
+    }
+}
+
+/* ==================== */
+/* UTILITY STYLES */
+/* ==================== */
 
 /* Untuk menyembunyikan kartu yang cocok tanpa mengubah tata letak */
 .tile.is-hidden {
@@ -385,4 +582,21 @@ body {
     margin: 0;
     padding: 0;
     overflow-x: hidden;
+}
+
+/* ORIENTATION WARNING BASE STYLES */
+.orientation-warning {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: #000;
+    color: white;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    z-index: 10000;
+    padding: 20px;
 }
